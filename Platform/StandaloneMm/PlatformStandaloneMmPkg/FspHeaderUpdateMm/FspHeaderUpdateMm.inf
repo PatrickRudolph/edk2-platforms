@@ -1,0 +1,46 @@
+## @file
+#  Standalone MM CPU driver
+#
+#  Copyright (c) 2009, Apple Inc. All rights reserved.<BR>
+#  Copyright (c) 2016 HP Development Company, L.P.
+#  Copyright (c) 2017 - 2021, Arm Limited. All rights reserved.
+#  Copyright (c) 2023, Ventana Micro System Inc. All rights reserved.
+#
+#  SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = FspHeaderUpdateMm
+  FILE_GUID                      = 97A1139B-3515-4E01-A1EB-B2A8EFEB11C4
+  MODULE_TYPE                    = MM_STANDALONE
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x00010032
+  ENTRY_POINT                    = FspHeaderUpdateMmInitialize
+
+[Sources]
+  FspHeaderUpdateMm.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  StandaloneMmPkg/StandaloneMmPkg.dec
+  IntelFsp2Pkg/IntelFsp2Pkg.dec
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  HobLib
+  StandaloneMmDriverEntryPoint
+  FvLib
+
+[Guids]
+  gEfiHobListGuid
+  gEfiMmCpuDriverEpDescriptorGuid
+  gFspHeaderFileGuid
+
+[Pcd]
+  gIntelFsp2PkgTokenSpaceGuid.PcdFspAreaBaseAddress
+
+[Depex]
+  TRUE

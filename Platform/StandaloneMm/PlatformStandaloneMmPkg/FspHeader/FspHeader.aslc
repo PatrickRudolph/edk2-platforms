@@ -1,0 +1,109 @@
+/** @file
+
+  @copyright
+  INTEL CONFIDENTIAL
+  Copyright 2014 - 2021 Intel Corporation. <BR>
+
+  The source code contained or described herein and all documents related to the
+  source code ("Material") are owned by Intel Corporation or its suppliers or
+  licensors. Title to the Material remains with Intel Corporation or its suppliers
+  and licensors. The Material may contain trade secrets and proprietary    and
+  confidential information of Intel Corporation and its suppliers and licensors,
+  and is protected by worldwide copyright and trade secret laws and treaty
+  provisions. No part of the Material may be used, copied, reproduced, modified,
+  published, uploaded, posted, transmitted, distributed, or disclosed in any way
+  without Intel's prior express written permission.
+
+  No license under any patent, copyright, trade secret or other intellectual
+  property right is granted to or conferred upon you by disclosure or delivery
+  of the Materials, either expressly, by implication, inducement, estoppel or
+  otherwise. Any license under such intellectual property rights must be
+  express and approved by Intel in writing.
+
+  Unless otherwise agreed by Intel in writing, you may not remove or alter
+  this notice or any other notice embedded in Materials by Intel or
+  Intel's suppliers or licensors in any way.
+**/
+
+#include <PiPei.h>
+#include <Library/PcdLib.h>
+#include <Guid/FspHeaderFile.h>
+
+#define FSP_PRODUCER_ID  "EDK2PL"
+
+typedef struct {
+  FSP_INFO_HEADER          FspInfoHeader;
+  FSP_INFO_EXTENDED_HEADER FspInfoExtendedHeader;
+  FSP_PATCH_TABLE          TableHeader;
+  UINT32                   TableEntries[1];
+} TABLES;
+
+TABLES  mTable =
+{
+  {
+    FSP_INFO_HEADER_SIGNATURE,             // UINT32 Signature (FSPH)
+    sizeof(FSP_INFO_HEADER),               // UINT32 HeaderLength;
+    {0x00, 0x00},                          // UINT8  Reserved1[2];
+    0x24,                                  // UINT8  SpecVersion;
+    7,                                     // UINT8  HeaderRevision;
+                                           // UINT32 ImageRevision;
+    ( 1 ),
+    {'S', 't', 'a', 'n', 'd', 'a', 'l', 'o'}, // CHAR8  ImageId[8];
+    FixedPcdGet32(PcdFspAreaSize),         // UINT32 ImageSize;
+    FixedPcdGet32(PcdFspAreaBaseAddress),  // UINT32 ImageBase;
+#ifdef MDE_CPU_X64
+    IMAGE_ATTRIBUTE_64BIT_MODE_SUPPORT,    // UINT16 ImageAttribute;
+#else
+    0,                                     // UINT16 ImageAttribute;
+#endif
+#ifdef NDEBUG
+    0x8000,                                // UINT16 ComponentAttribute;
+#else
+    0x8000,                                // UINT16 ComponentAttribute;
+#endif
+    0,                                     // UINT32 CfgRegionOffset;
+    0x20000,                               // UINT32 CfgRegionSize;
+    0,                                     // UINT32 Reserved2;
+    0,                                     // UINT32 TempRamInitEntry;
+    0,                                     // UINT32 Reserved3;
+    0,                                     // UINT32 NotifyPhaseEntry;
+    0,                                     // UINT32 FspMemoryInitEntry;
+    0,                                     // UINT32 TempRamExitEntry;
+    0,                                     // UINT32 FspSiliconInitEntry;
+    0,                                     // UINT32 FspMultiPhaseSiInitEntryOffset;
+                                           // UINT16 ExtendedImageRevision;
+    0,
+    0,                                     // UINT16 Reserved4
+  },
+  {
+    FSP_INFO_EXTENDED_HEADER_SIGNATURE,    // UINT32 Signature (FSPE)
+    sizeof(FSP_INFO_EXTENDED_HEADER),      // UINT32 Length;
+    FSPE_HEADER_REVISION_1,                // UINT8  Revision;
+    0x00,                                  // UINT8  Reserved;
+    {FSP_PRODUCER_ID},                     // CHAR8  FspProducerId[6];
+    0x00000001,                            // UINT32 FspProducerRevision;
+    0x00000000,                            // UINT32 FspProducerDataSize;
+  },
+  {
+    FSP_FSPP_SIGNATURE,                    // UINT32 Signature (FSPP)
+    sizeof(FSP_PATCH_TABLE),               // UINT16 HeaderLength;
+    FSPP_HEADER_REVISION_1,                // UINT8  HeaderRevision;
+    0x00,                                  // UINT8  Reserved;
+    0,                                     // UINT32 PatchEntryNum;
+  },
+  {
+    0,
+  }
+};
+
+VOID*
+ReferenceAcpiTable (
+  VOID
+  )
+{
+  //
+  // Reference the table being generated to prevent the optimizer from
+  // removing the data structure from the executable
+  //
+  return (VOID*)&mTable;
+}
